@@ -44,7 +44,7 @@ const PermissionsPage = () => {
 
 
     // Responsive breakpoint for small screens
-       const isSmallScreen = useMediaQuery('(max-width:600px)');
+    const isSmallScreen = useMediaQuery('(max-width:600px)');
 
     // Snackbar handlers
     const handleSnackbarOpen = (message, severity = 'success') => {
@@ -144,6 +144,9 @@ const PermissionsPage = () => {
                             sx={{
                                 backgroundColor: '#907FCF',
                                 '&:hover': { backgroundColor: '#6e5bb7' },
+                                marginLeft: isSmallScreen ? '8px' : '0', // Add left margin for small screens
+                                padding: isSmallScreen ? '6px 12px' : '8px 16px', // Reduce padding for small screens
+                                fontSize: isSmallScreen ? '0.75rem' : '1rem', // Adjust font size for small screens
                             }}
                             onClick={() => handleOpenManageModal(role)}
                         >

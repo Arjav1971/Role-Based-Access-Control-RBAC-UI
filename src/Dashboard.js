@@ -52,7 +52,7 @@ function ResponsiveDrawer(props) {
     const location = useLocation();
 
     const menuItems = [
-        { text: "Users", link: "/users", icon: <GroupIcon /> },
+        { text: "Users", link: "/", icon: <GroupIcon /> },
         { text: "Roles", link: "/roles", icon: <AdminPanelSettingsIcon /> },
     ];
 

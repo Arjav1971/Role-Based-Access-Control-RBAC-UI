@@ -13,9 +13,7 @@ const App = () => {
           <Routes>
             <Route path="/" element={<Dashboard/>}>
               {/* Nested routes */}
-              <Route path="users" element={<Users />} />
-              {/* <Route path="roles" element={<Roles />} /> */}
-              <Route path="/add-user" element={<AddUser />} />
+              <Route path="/" element={<Users />} />
               <Route path="/roles" element={<Roles />} />
             </Route>
 
