@@ -488,7 +488,7 @@ const Users = () => {
                 {isEditing && <div>Actions</div>}
             </Box>
             {/* Table Rows */}
-            {/* <Box sx={{ paddingX: 2, paddingY: 2, backgroundColor: '#FFFFFF' }}>
+            <Box sx={{ paddingX: 2, paddingY: 2, backgroundColor: '#FFFFFF' }}>
                 {paginatedUsers.map((user, index) => (
                     <div
                         key={index}
@@ -590,122 +590,7 @@ const Users = () => {
                         )}
                     </div>
                 ))}
-            </Box> */}
-            <Box
-    sx={{
-        paddingX: 2,
-        paddingY: 2,
-        backgroundColor: '#FFFFFF',
-        maxHeight: '400px', // Set a maximum height for the table container
-        overflowY: 'auto',  // Enable vertical scrolling
-        scrollbarWidth: 'none', // For Firefox, hide the scrollbar
-        '&::-webkit-scrollbar': {
-            display: 'none', // For Chrome, Safari, and Edge
-        },
-    }}
->
-    {paginatedUsers.map((user, index) => (
-        <div
-            key={index}
-            style={{
-                display: 'grid',
-                gridTemplateColumns: isEditing
-                    ? '1fr 1fr 1fr 1fr 1fr 1fr' // Include Actions column
-                    : '1fr 1fr 1fr 1fr 1fr',   // Exclude Actions column
-                padding: '10px 0',
-                backgroundColor: index % 2 === 0 ? '#F9FAFB' : '#FFFFFF',
-                alignItems: 'center', // Vertically center items
-                textAlign: 'center', // Horizontally center items
-            }}
-        >
-            <div>{user.account}</div>
-            <div>{user.projects}</div>
-            <div>
-                {isEditing ? (
-                    <TextField
-                        select
-                        size="small"
-                        value={user.status}
-                        onChange={(e) => handleStatusChange(index, e.target.value)}
-                        sx={{
-                            width: "130px",
-                            "& .MuiOutlinedInput-root": {
-                                borderRadius: '8px',
-                                backgroundColor: '#F4F0FF',
-                            },
-                            "& .MuiOutlinedInput-notchedOutline": {
-                                border: 'none',
-                            },
-                        }}
-                    >
-                        {statusOptions.map((status) => (
-                            <MenuItem key={status} value={status}>
-                                {status}
-                            </MenuItem>
-                        ))}
-                    </TextField>
-                ) : (
-                    user.status
-                )}
-            </div>
-            <div>
-                {isEditing ? (
-                    <TextField
-                        select
-                        size="small"
-                        value={user.role}
-                        onChange={(e) => handleRoleChange(index, e.target.value)}
-                        sx={{
-                            "& .MuiOutlinedInput-root": {
-                                borderRadius: '8px',
-                                backgroundColor: '#F4F0FF',
-                            },
-                            "& .MuiOutlinedInput-notchedOutline": {
-                                border: 'none',
-                            },
-                        }}
-                    >
-                        {roles.map((role) => (
-                            <MenuItem key={role} value={role}>
-                                {role}
-                            </MenuItem>
-                        ))}
-                    </TextField>
-                ) : (
-                    user.role
-                )}
-            </div>
-            <div>
-                {isEditing ? (
-                    <TextField
-                        type="date"
-                        size="small"
-                        value={user.expiration}
-                        onChange={(e) => handleExpirationChange(index, e.target.value)}
-                        sx={{
-                            "& .MuiOutlinedInput-root": {
-                                borderRadius: '8px',
-                                backgroundColor: '#F4F0FF',
-                            },
-                            "& .MuiOutlinedInput-notchedOutline": {
-                                border: 'none',
-                            },
-                        }}
-                    />
-                ) : (
-                    user.expiration
-                )}
-            </div>
-            {isEditing && (
-                <div>
-                    <IconButton onClick={() => handleDeleteUser(index)} color="error">
-                        <DeleteIcon />
-                    </IconButton>
-                </div>
-            )}
-        </div>
-    ))}
-</Box>
+            </Box>
 
             {/* Pagination */}
             <Box
