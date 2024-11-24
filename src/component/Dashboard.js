@@ -256,10 +256,10 @@ function ResponsiveDrawer(props) {
             </Box>
             <Box
                 component="main"
-                sx={{ flexGrow: 1, p: 3, width: { sm: `calc(100% - ${drawerWidth}px)` }, backgroundColor: "#F5F4FF", height: "100%" }}
+                sx={{ flexGrow: 1, px: 3, width: { sm: `calc(100% - ${drawerWidth}px)` }, backgroundColor: "#F5F4FF", height: "100%" }}
             >
                 <Toolbar />
-                <div className="mt-10 md:mt-2 mx-4 ">
+                <div className="mt-10 md:mt-2 mx-4 h-max">
                     <Outlet />
                 </div>
             </Box>
