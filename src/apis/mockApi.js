@@ -1,4 +1,4 @@
-import usersData from './mockUsers.json';
+import usersData from '../assests/DataAssets/mockUsers.json';
 
 let users = [...usersData]; // In-memory data copy for simulation
 

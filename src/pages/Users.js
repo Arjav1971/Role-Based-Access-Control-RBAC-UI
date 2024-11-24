@@ -14,7 +14,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import Pagination from '@mui/material/Pagination';
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
-import { getUsers, addUser, deleteUser, updateUser } from './mockApi';
+import { getUsers, addUser, deleteUser, updateUser } from '../apis/mockApi';
 const Users = () => {
     const [search, setSearch] = useState('');
     const [roleFilter, setRoleFilter] = useState('');
@@ -127,7 +127,7 @@ const Users = () => {
         setCurrentPage(value);
     };
     return (
-        <div className="bg-[#F5F4FF] min-h-full">
+        <div className="bg-[#F5F4FF] h-screen p-6">
             <Box sx={{
                 display: 'flex',
                 alignItems: 'center',

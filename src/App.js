@@ -1,9 +1,8 @@
 import React from 'react'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Dashboard from "./Dashboard"
-import Users from './Users';
-import AddUser from './AddUser';
-import Roles from './Roles'
+import Dashboard from "./component/Dashboard"
+import Users from './pages/Users';
+import Roles from './pages/Roles'
 const App = () => {
   return (
     <>
