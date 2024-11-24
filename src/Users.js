@@ -12,14 +12,16 @@ import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
 import DeleteIcon from '@mui/icons-material/Delete';
 import Pagination from '@mui/material/Pagination';
+import Snackbar from '@mui/material/Snackbar';
+import Alert from '@mui/material/Alert';
 import { getUsers, addUser, deleteUser, updateUser } from './mockApi';
-
 const Users = () => {
     const [search, setSearch] = useState('');
     const [roleFilter, setRoleFilter] = useState('');
     const [sortBy, setSortBy] = useState('');
     const [isEditing, setIsEditing] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
     const [newUser, setNewUser] = useState({
         account: '',
         projects: '',
@@ -28,14 +30,11 @@ const Users = () => {
         status: 'Active', // Default status
     });
     const [users, setUsers] = useState([]);
+    const statusOptions = ['Active', 'Inactive']; // Status options
     const [currentPage, setCurrentPage] = useState(1);
     const usersPerPage = 15;
-
-    const statusOptions = ['Active', 'Inactive']; // Status options
-    const roles = ['Admin', 'Editor', 'Viewer'];
-    const sortOptions = ['Account', 'Date Added', 'Role'];
-
     useEffect(() => {
+        // Fetch initial users
         const fetchUsers = async () => {
             const userData = await getUsers();
             setUsers(userData);
@@ -43,12 +42,25 @@ const Users = () => {
         fetchUsers();
     }, []);
 
+    const roles = ['Admin', 'Editor', 'Viewer'];
+    const sortOptions = ['Account', 'Expiration Date', 'Role'];
+
+    const handleSnackbarOpen = (message, severity = 'success') => {
+        setSnackbar({ open: true, message, severity });
+    };
+
+    const handleSnackbarClose = () => {
+        setSnackbar({ ...snackbar, open: false });
+    };
+
+
     const handleRoleChange = async (index, newRole) => {
         const userId = users[index].id;
         const updatedUser = await updateUser(userId, { role: newRole });
         setUsers((prevUsers) =>
             prevUsers.map((user) => (user.id === userId ? updatedUser : user))
         );
+        handleSnackbarOpen(`Role updated to "${newRole}" successfully.`);
     };
 
     const handleExpirationChange = async (index, newDate) => {
@@ -57,17 +69,18 @@ const Users = () => {
         setUsers((prevUsers) =>
             prevUsers.map((user) => (user.id === userId ? updatedUser : user))
         );
+        handleSnackbarOpen(`Expiration date updated to "${newDate}" successfully.`);
     };
-
     const handleStatusChange = async (index, newStatus) => {
         const userId = users[index].id;
         const updatedUser = await updateUser(userId, { status: newStatus });
         setUsers((prevUsers) =>
             prevUsers.map((user) => (user.id === userId ? updatedUser : user))
         );
+        handleSnackbarOpen(`Status updated to "${newStatus}" successfully.`);
     };
-
     const handleAddUser = async () => {
+        console.log("handleAddUser called");
         if (!newUser.account || !newUser.role) {
             alert("Please fill all required fields.");
             return;
@@ -75,28 +88,32 @@ const Users = () => {
 
         const newUserWithId = await addUser(newUser);
         setUsers((prevUsers) => [...prevUsers, newUserWithId]);
+        console.log("User added successfully:", newUserWithId);
         setNewUser({ account: '', projects: '', accessExpires: '', role: '', expiration: '' });
         setIsModalOpen(false);
+        handleSnackbarOpen(`User "${newUserWithId.account}" added successfully.`);
     };
 
     const handleDeleteUser = async (index) => {
         const userId = users[index].id;
         await deleteUser(userId);
         setUsers((prevUsers) => prevUsers.filter((user) => user.id !== userId));
+        handleSnackbarOpen('User deleted successfully.');
     };
 
+    // Filtering and sorting users
     const filteredAndSortedUsers = [...users]
         .filter(user => user.account.toLowerCase().includes(search.toLowerCase())) // Search filter
         .filter(user => roleFilter === '' || user.role === roleFilter) // Role filter
         .sort((a, b) => {
             if (sortBy === 'Account') {
                 return a.account.localeCompare(b.account);
-            } else if (sortBy === 'Date Added') {
+            } else if (sortBy === 'Expiration Date') {
                 return new Date(a.expiration) - new Date(b.expiration);
             } else if (sortBy === 'Role') {
                 return a.role.localeCompare(b.role);
             }
-            return 0;
+            return 0; // Default: no sorting
         });
 
     const totalPages = Math.ceil(filteredAndSortedUsers.length / usersPerPage);
@@ -109,9 +126,8 @@ const Users = () => {
     const handlePageChange = (event, value) => {
         setCurrentPage(value);
     };
-
     return (
-        <div className="bg-[#F5F4FF] h-screen">
+        <div className="bg-[#F5F4FF] min-h-full">
             <Box sx={{
                 display: 'flex',
                 alignItems: 'center',
@@ -140,6 +156,157 @@ const Users = () => {
                 </Box>
             </Box>
 
+            {/* Modal for Adding New User */}
+            <Dialog open={isModalOpen} onClose={() => setIsModalOpen(false)} fullWidth maxWidth="sm">
+                {/* Dialog Header */}
+                <Box
+                    className="text-2xl text-white font-bold px-5 "
+                    sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        padding: "20px",
+                        backgroundColor: "#907FCF", // Light background color
+                    }}
+                >
+                    Add New User
+                </Box>
+
+                {/* Dialog Content */}
+                <DialogContent
+                    sx={{
+                        backgroundColor: "#F9FAFB", // Slightly lighter background for content
+                        padding: "20px",
+                    }}
+                >
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+                        <TextField
+                            label="User Name"
+                            value={newUser.account}
+                            onChange={(e) => setNewUser({ ...newUser, account: e.target.value })}
+                            fullWidth
+                            InputLabelProps={{ style: { color: "#907FCF" } }} // Label color
+                            sx={{
+                                "& .MuiOutlinedInput-root": {
+                                    backgroundColor: "#F4F0FF", // Light purple
+                                    borderRadius: "8px",
+                                    "&:hover": {
+                                        backgroundColor: "rgba(144, 127, 207, 0.2)", // Hover effect
+                                    },
+                                    "&.Mui-focused": {
+                                        backgroundColor: "rgba(144, 127, 207, 0.3)", // Focus effect
+                                        boxShadow: "0 0 4px rgba(144, 127, 207, 0.5)", // Focus shadow
+                                    },
+                                },
+                            }}
+                        />
+                        <TextField
+                            label="Projects"
+                            type="number"
+                            value={newUser.projects}
+                            onChange={(e) => setNewUser({ ...newUser, projects: e.target.value })}
+                            fullWidth
+                            InputLabelProps={{ style: { color: "#907FCF" } }}
+                            sx={{
+                                "& .MuiOutlinedInput-root": {
+                                    backgroundColor: "#F4F0FF",
+                                    borderRadius: "8px",
+                                    "&:hover": {
+                                        backgroundColor: "rgba(144, 127, 207, 0.2)",
+                                    },
+                                    "&.Mui-focused": {
+                                        backgroundColor: "rgba(144, 127, 207, 0.3)",
+                                        boxShadow: "0 0 4px rgba(144, 127, 207, 0.5)",
+                                    },
+                                },
+                            }}
+                        />
+
+                        <TextField
+                            label="Role"
+                            select
+                            value={newUser.role}
+                            onChange={(e) => setNewUser({ ...newUser, role: e.target.value })}
+                            fullWidth
+                            InputLabelProps={{ style: { color: "#907FCF" } }}
+                            sx={{
+                                "& .MuiOutlinedInput-root": {
+                                    backgroundColor: "#F4F0FF",
+                                    borderRadius: "8px",
+                                    "&:hover": {
+                                        backgroundColor: "rgba(144, 127, 207, 0.2)",
+                                    },
+                                    "&.Mui-focused": {
+                                        backgroundColor: "rgba(144, 127, 207, 0.3)",
+                                        boxShadow: "0 0 4px rgba(144, 127, 207, 0.5)",
+                                    },
+                                },
+                            }}
+                        >
+                            {roles.map((role) => (
+                                <MenuItem key={role} value={role}>
+                                    {role}
+                                </MenuItem>
+                            ))}
+                        </TextField>
+                        <TextField
+                            label="Expiration Date"
+                            type="date"
+                            InputLabelProps={{ shrink: true, style: { color: "#907FCF" } }}
+                            value={newUser.expiration}
+                            onChange={(e) => setNewUser({ ...newUser, expiration: e.target.value })}
+                            fullWidth
+                            sx={{
+                                "& .MuiOutlinedInput-root": {
+                                    backgroundColor: "#F4F0FF",
+                                    borderRadius: "8px",
+                                    "&:hover": {
+                                        backgroundColor: "rgba(144, 127, 207, 0.2)",
+                                    },
+                                    "&.Mui-focused": {
+                                        backgroundColor: "rgba(144, 127, 207, 0.3)",
+                                        boxShadow: "0 0 4px rgba(144, 127, 207, 0.5)",
+                                    },
+                                },
+                            }}
+                        />
+                    </Box>
+                </DialogContent>
+
+                {/* Dialog Actions */}
+                <DialogActions
+                    sx={{
+                        padding: "10px 20px",
+                        // backgroundColor: "#F4F0FF",
+                    }}
+                >
+                    <Button
+                        onClick={() => setIsModalOpen(false)}
+                        variant="contained"
+                        sx={{
+                            backgroundColor: '#E0E0E0',
+                            color: 'black',
+                            '&:hover': { backgroundColor: '#C0C0C0' },
+                        }}
+                    >
+                        Cancel
+                    </Button>
+
+
+         
+                    <Button
+                        onClick={handleAddUser}
+                        variant="contained"
+                        sx={{
+                            backgroundColor: "#907FCF",
+                            "&:hover": {
+                                backgroundColor: "#6e5bb7",
+                            },
+                        }}
+                    >
+                        Save
+                    </Button>
+                </DialogActions>
+            </Dialog>
             {/* Filter/Search/Sort Area */}
             <Box
                 sx={{
@@ -159,6 +326,7 @@ const Users = () => {
                         backgroundColor: '#F9FAFB',
                     }}
                 >
+                    {/* Search Box */}
                     <TextField
                         id="search-box"
                         variant="outlined"
@@ -201,6 +369,7 @@ const Users = () => {
                         }}
                     />
 
+                    {/* Role Filter */}
                     <TextField
                         label="Roles"
                         variant="outlined"
@@ -210,6 +379,7 @@ const Users = () => {
                         onChange={(e) => setRoleFilter(e.target.value)}
                         sx={{
                             minWidth: 150,
+                            marginRight:1,
                             "& .MuiOutlinedInput-root": {
                                 borderRadius: "12px",
                                 backgroundColor: "#F4F0FF",
@@ -230,6 +400,11 @@ const Users = () => {
                             "& .MuiSelect-icon": {
                                 color: "#907FCF",
                             },
+                            "& .MuiMenuItem-root": {
+                                "&:hover": {
+                                    backgroundColor: "rgba(144, 127, 207, 0.1)",
+                                },
+                            },
                         }}
                     >
                         <MenuItem value="">
@@ -243,6 +418,7 @@ const Users = () => {
                     </TextField>
                 </Box>
 
+                {/* Sort By */}
                 <TextField
                     label="Sort By"
                     variant="outlined"
@@ -269,6 +445,14 @@ const Users = () => {
                         "& .MuiInputLabel-root": {
                             color: "#907FCF",
                         },
+                        "& .MuiSelect-icon": {
+                            color: "#907FCF",
+                        },
+                        "& .MuiMenuItem-root": {
+                            "&:hover": {
+                                backgroundColor: "rgba(144, 127, 207, 0.1)",
+                            },
+                        },
                     }}
                 >
                     {sortOptions.map((option) => (
@@ -292,8 +476,8 @@ const Users = () => {
                     backgroundColor: '#FFFFFF',
                     borderTop: '1px solid #E0E0E0',
                     borderBottom: '1px solid #E0E0E0',
-                    textAlign: 'center',
-                    alignItems: 'center',
+                    textAlign: 'center', // Horizontally center text
+                    alignItems: 'center', // Vertically center text
                 }}
             >
                 <div>Account</div>
@@ -303,7 +487,6 @@ const Users = () => {
                 <div>Expiration</div>
                 {isEditing && <div>Actions</div>}
             </Box>
-
             {/* Table Rows */}
             <Box sx={{ paddingX: 2, paddingY: 2, backgroundColor: '#FFFFFF' }}>
                 {paginatedUsers.map((user, index) => (
@@ -312,12 +495,12 @@ const Users = () => {
                         style={{
                             display: 'grid',
                             gridTemplateColumns: isEditing
-                                ? '1fr 1fr 1fr 1fr 1fr 1fr'
-                                : '1fr 1fr 1fr 1fr 1fr',
+                                ? '1fr 1fr 1fr 1fr 1fr 1fr' // Include Actions column
+                                : '1fr 1fr 1fr 1fr 1fr',   // Exclude Actions column
                             padding: '10px 0',
                             backgroundColor: index % 2 === 0 ? '#F9FAFB' : '#FFFFFF',
-                            alignItems: 'center',
-                            textAlign: 'center',
+                            alignItems: 'center', // Vertically center items
+                            textAlign: 'center', // Horizontally center items
                         }}
                     >
                         <div>{user.account}</div>
@@ -435,6 +618,20 @@ const Users = () => {
                     }}
                 />
             </Box>
+            <Snackbar
+                open={snackbar.open}
+                autoHideDuration={3000}
+                onClose={handleSnackbarClose}
+                anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+            >
+                <Alert
+                    onClose={handleSnackbarClose}
+                    severity={snackbar.severity}
+                    sx={{ width: '100%' }}
+                >
+                    {snackbar.message}
+                </Alert>
+            </Snackbar>
         </div>
     );
 };
