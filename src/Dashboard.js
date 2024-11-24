@@ -70,6 +70,7 @@ function ResponsiveDrawer(props) {
                     alt="Logo"
                     style={{ maxWidth: "200%", height: "70px", marginLeft: "50px" }}
                 />
+
                 <span
                     style={{
                         maxWidth: "100%",
@@ -135,7 +136,7 @@ function ResponsiveDrawer(props) {
     const container = window !== undefined ? () => window().document.body : undefined;
 
     return (
-        <Box sx={{ display: 'flex'}}>
+<Box sx={{ display: 'flex', width: '100%', overflowX: 'hidden' }}>
             <CssBaseline />
             <AppBar
                 position="fixed"
