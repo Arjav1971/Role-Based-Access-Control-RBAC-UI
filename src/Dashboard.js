@@ -136,7 +136,7 @@ function ResponsiveDrawer(props) {
     const container = window !== undefined ? () => window().document.body : undefined;
 
     return (
-<Box sx={{ display: 'flex', width: '100%', overflowX: 'hidden' }}>
+        <Box sx={{ display: 'flex'}}>
             <CssBaseline />
             <AppBar
                 position="fixed"
