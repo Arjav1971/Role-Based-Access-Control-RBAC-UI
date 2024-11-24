@@ -136,7 +136,15 @@ function ResponsiveDrawer(props) {
     const container = window !== undefined ? () => window().document.body : undefined;
 
     return (
-        <Box sx={{ display: 'flex'}}>
+        <Box
+        sx={{
+            display: 'flex',
+            maxWidth: '100%',
+            mx: 'auto', // Centers the container horizontally
+            width: { sm: 'calc(100% - 250px)', xs: '100%' },
+            // px: { xs: 4, xl: 24 }, // Horizontal padding for small and extra-large screens
+        }}
+    >
             <CssBaseline />
             <AppBar
                 position="fixed"
