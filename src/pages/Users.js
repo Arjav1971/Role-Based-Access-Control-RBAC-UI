@@ -5,16 +5,17 @@ import MenuItem from '@mui/material/MenuItem';
 import InputAdornment from "@mui/material/InputAdornment";
 import SearchIcon from "@mui/icons-material/Search";
 import Dialog from '@mui/material/Dialog';
-import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
 import Button from '@mui/material/Button';
-import IconButton from '@mui/material/IconButton';
-import DeleteIcon from '@mui/icons-material/Delete';
 import Pagination from '@mui/material/Pagination';
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
+import { Formik, Form, Field, ErrorMessage } from 'formik';
+import * as Yup from 'yup';
 import { getUsers, addUser, deleteUser, updateUser } from '../apis/mockApi';
+import IconButton from '@mui/material/IconButton';
+import DeleteIcon from '@mui/icons-material/Delete';
 const Users = () => {
     const [search, setSearch] = useState('');
     const [roleFilter, setRoleFilter] = useState('');
@@ -22,19 +23,11 @@ const Users = () => {
     const [isEditing, setIsEditing] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
-    const [newUser, setNewUser] = useState({
-        account: '',
-        projects: '',
-        role: '',
-        expiration: '',
-        status: 'Active', // Default status
-    });
     const [users, setUsers] = useState([]);
-    const statusOptions = ['Active', 'Inactive']; // Status options
     const [currentPage, setCurrentPage] = useState(1);
     const usersPerPage = 15;
+
     useEffect(() => {
-        // Fetch initial users
         const fetchUsers = async () => {
             const userData = await getUsers();
             setUsers(userData);
@@ -43,7 +36,8 @@ const Users = () => {
     }, []);
 
     const roles = ['Admin', 'Editor', 'Viewer'];
-    const sortOptions = ['Account', 'Expiration Date', 'Role'];
+    const statusOptions = ['Active', 'Inactive'];
+    const sortOptions = ['User', 'Expiration Date', 'Role'];
 
     const handleSnackbarOpen = (message, severity = 'success') => {
         setSnackbar({ open: true, message, severity });
@@ -53,7 +47,58 @@ const Users = () => {
         setSnackbar({ ...snackbar, open: false });
     };
 
+    const handleAddUser = async (values, { resetForm }) => {
+        try {
+            const newUserWithId = await addUser(values);
+            setUsers((prevUsers) => [...prevUsers, newUserWithId]);
+            resetForm();
+            setIsModalOpen(false);
+            handleSnackbarOpen(`User "${newUserWithId.user}" added successfully.`);
+        } catch (error) {
+            handleSnackbarOpen('Failed to add user. Please try again.', 'error');
+        }
+    };
 
+    const handleDeleteUser = async (index) => {
+        const userId = users[index].id;
+        await deleteUser(userId);
+        setUsers((prevUsers) => prevUsers.filter((user) => user.id !== userId));
+        handleSnackbarOpen('User deleted successfully.');
+    };
+
+    const filteredAndSortedUsers = [...users]
+        .filter(user => user.user.toLowerCase().includes(search.toLowerCase()))
+        .filter(user => roleFilter === '' || user.role === roleFilter)
+        .sort((a, b) => {
+            if (sortBy === 'User') return a.user.localeCompare(b.user);
+            if (sortBy === 'Expiration Date') return new Date(a.expiration) - new Date(b.expiration);
+            if (sortBy === 'Role') return a.role.localeCompare(b.role);
+            return 0;
+        });
+
+    const totalPages = Math.ceil(filteredAndSortedUsers.length / usersPerPage);
+
+    const paginatedUsers = filteredAndSortedUsers.slice(
+        (currentPage - 1) * usersPerPage,
+        currentPage * usersPerPage
+    );
+
+    const handlePageChange = (event, value) => {
+        setCurrentPage(value);
+    };
+
+    // Validation schema using Yup
+    const validationSchema = Yup.object().shape({
+        user: Yup.string().required('User Name is required'),
+        projects: Yup.number()
+            .typeError('Projects must be a valid number')
+            .min(0, 'Projects must be a non-negative number')
+            .required('Projects is required'),
+        role: Yup.string().required('Role is required'),
+        expiration: Yup.date()
+            .min(new Date(), 'Expiration Date cannot be in the past')
+            .required('Expiration Date is required'),
+    });
     const handleRoleChange = async (index, newRole) => {
         const userId = users[index].id;
         const updatedUser = await updateUser(userId, { role: newRole });
@@ -64,6 +109,11 @@ const Users = () => {
     };
 
     const handleExpirationChange = async (index, newDate) => {
+        const today = new Date().toISOString().split('T')[0]; 
+        if (newDate < today) {
+            handleSnackbarOpen("Expiration date cannot be in the past.", "error");
+            return;
+        }
         const userId = users[index].id;
         const updatedUser = await updateUser(userId, { expiration: newDate });
         setUsers((prevUsers) =>
@@ -79,53 +129,7 @@ const Users = () => {
         );
         handleSnackbarOpen(`Status updated to "${newStatus}" successfully.`);
     };
-    const handleAddUser = async () => {
-        console.log("handleAddUser called");
-        if (!newUser.account || !newUser.role) {
-            alert("Please fill all required fields.");
-            return;
-        }
 
-        const newUserWithId = await addUser(newUser);
-        setUsers((prevUsers) => [...prevUsers, newUserWithId]);
-        console.log("User added successfully:", newUserWithId);
-        setNewUser({ account: '', projects: '', accessExpires: '', role: '', expiration: '' });
-        setIsModalOpen(false);
-        handleSnackbarOpen(`User "${newUserWithId.account}" added successfully.`);
-    };
-
-    const handleDeleteUser = async (index) => {
-        const userId = users[index].id;
-        await deleteUser(userId);
-        setUsers((prevUsers) => prevUsers.filter((user) => user.id !== userId));
-        handleSnackbarOpen('User deleted successfully.');
-    };
-
-    // Filtering and sorting users
-    const filteredAndSortedUsers = [...users]
-        .filter(user => user.account.toLowerCase().includes(search.toLowerCase())) // Search filter
-        .filter(user => roleFilter === '' || user.role === roleFilter) // Role filter
-        .sort((a, b) => {
-            if (sortBy === 'Account') {
-                return a.account.localeCompare(b.account);
-            } else if (sortBy === 'Expiration Date') {
-                return new Date(a.expiration) - new Date(b.expiration);
-            } else if (sortBy === 'Role') {
-                return a.role.localeCompare(b.role);
-            }
-            return 0; // Default: no sorting
-        });
-
-    const totalPages = Math.ceil(filteredAndSortedUsers.length / usersPerPage);
-
-    const paginatedUsers = filteredAndSortedUsers.slice(
-        (currentPage - 1) * usersPerPage,
-        currentPage * usersPerPage
-    );
-
-    const handlePageChange = (event, value) => {
-        setCurrentPage(value);
-    };
     return (
         <div className="bg-[#F5F4FF] h-screen p-6">
             <Box sx={{
@@ -158,156 +162,95 @@ const Users = () => {
 
             {/* Modal for Adding New User */}
             <Dialog open={isModalOpen} onClose={() => setIsModalOpen(false)} fullWidth maxWidth="sm">
-                {/* Dialog Header */}
-                <Box
-                    className="text-2xl text-white font-bold px-5 "
-                    sx={{
-                        display: "flex",
-                        alignItems: "center",
-                        padding: "20px",
-                        backgroundColor: "#907FCF", // Light background color
-                    }}
-                >
+                <Box className="text-2xl text-white font-bold px-5" sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    padding: "20px",
+                    backgroundColor: "#907FCF",
+                }}>
                     Add New User
                 </Box>
-
-                {/* Dialog Content */}
-                <DialogContent
-                    sx={{
-                        backgroundColor: "#F9FAFB", // Slightly lighter background for content
-                        padding: "20px",
+                <Formik
+                    initialValues={{
+                        user: '',
+                        projects: '',
+                        role: '',
+                        expiration: '',
+                        status: 'Active',
                     }}
+                    validationSchema={validationSchema}
+                    onSubmit={handleAddUser}
                 >
-                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-                        <TextField
-                            label="User Name"
-                            value={newUser.account}
-                            onChange={(e) => setNewUser({ ...newUser, account: e.target.value })}
-                            fullWidth
-                            InputLabelProps={{ style: { color: "#907FCF" } }} // Label color
-                            sx={{
-                                "& .MuiOutlinedInput-root": {
-                                    backgroundColor: "#F4F0FF", // Light purple
-                                    borderRadius: "8px",
-                                    "&:hover": {
-                                        backgroundColor: "rgba(144, 127, 207, 0.2)", // Hover effect
-                                    },
-                                    "&.Mui-focused": {
-                                        backgroundColor: "rgba(144, 127, 207, 0.3)", // Focus effect
-                                        boxShadow: "0 0 4px rgba(144, 127, 207, 0.5)", // Focus shadow
-                                    },
-                                },
-                            }}
-                        />
-                        <TextField
-                            label="Projects"
-                            type="number"
-                            value={newUser.projects}
-                            onChange={(e) => setNewUser({ ...newUser, projects: e.target.value })}
-                            fullWidth
-                            InputLabelProps={{ style: { color: "#907FCF" } }}
-                            sx={{
-                                "& .MuiOutlinedInput-root": {
-                                    backgroundColor: "#F4F0FF",
-                                    borderRadius: "8px",
-                                    "&:hover": {
-                                        backgroundColor: "rgba(144, 127, 207, 0.2)",
-                                    },
-                                    "&.Mui-focused": {
-                                        backgroundColor: "rgba(144, 127, 207, 0.3)",
-                                        boxShadow: "0 0 4px rgba(144, 127, 207, 0.5)",
-                                    },
-                                },
-                            }}
-                        />
-
-                        <TextField
-                            label="Role"
-                            select
-                            value={newUser.role}
-                            onChange={(e) => setNewUser({ ...newUser, role: e.target.value })}
-                            fullWidth
-                            InputLabelProps={{ style: { color: "#907FCF" } }}
-                            sx={{
-                                "& .MuiOutlinedInput-root": {
-                                    backgroundColor: "#F4F0FF",
-                                    borderRadius: "8px",
-                                    "&:hover": {
-                                        backgroundColor: "rgba(144, 127, 207, 0.2)",
-                                    },
-                                    "&.Mui-focused": {
-                                        backgroundColor: "rgba(144, 127, 207, 0.3)",
-                                        boxShadow: "0 0 4px rgba(144, 127, 207, 0.5)",
-                                    },
-                                },
-                            }}
-                        >
-                            {roles.map((role) => (
-                                <MenuItem key={role} value={role}>
-                                    {role}
-                                </MenuItem>
-                            ))}
-                        </TextField>
-                        <TextField
-                            label="Expiration Date"
-                            type="date"
-                            InputLabelProps={{ shrink: true, style: { color: "#907FCF" } }}
-                            value={newUser.expiration}
-                            onChange={(e) => setNewUser({ ...newUser, expiration: e.target.value })}
-                            fullWidth
-                            sx={{
-                                "& .MuiOutlinedInput-root": {
-                                    backgroundColor: "#F4F0FF",
-                                    borderRadius: "8px",
-                                    "&:hover": {
-                                        backgroundColor: "rgba(144, 127, 207, 0.2)",
-                                    },
-                                    "&.Mui-focused": {
-                                        backgroundColor: "rgba(144, 127, 207, 0.3)",
-                                        boxShadow: "0 0 4px rgba(144, 127, 207, 0.5)",
-                                    },
-                                },
-                            }}
-                        />
-                    </Box>
-                </DialogContent>
-
-                {/* Dialog Actions */}
-                <DialogActions
-                    sx={{
-                        padding: "10px 20px",
-                        // backgroundColor: "#F4F0FF",
-                    }}
-                >
-                    <Button
-                        onClick={() => setIsModalOpen(false)}
-                        variant="contained"
-                        sx={{
-                            backgroundColor: '#E0E0E0',
-                            color: 'black',
-                            '&:hover': { backgroundColor: '#C0C0C0' },
-                        }}
-                    >
-                        Cancel
-                    </Button>
-
-
-         
-                    <Button
-                        onClick={handleAddUser}
-                        variant="contained"
-                        sx={{
-                            backgroundColor: "#907FCF",
-                            "&:hover": {
-                                backgroundColor: "#6e5bb7",
-                            },
-                        }}
-                    >
-                        Save
-                    </Button>
-                </DialogActions>
+                    {({ errors, touched }) => (
+                        <Form>
+                            <DialogContent sx={{ backgroundColor: "#F9FAFB", padding: "20px" }}>
+                                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+                                    <Field
+                                        as={TextField}
+                                        label="User Name"
+                                        name="user"
+                                        fullWidth
+                                        error={touched.user && !!errors.user}
+                                        helperText={touched.user && errors.user}
+                                    />
+                                    <Field
+                                        as={TextField}
+                                        label="Projects"
+                                        name="projects"
+                                        type="number"
+                                        fullWidth
+                                        error={touched.projects && !!errors.projects}
+                                        helperText={touched.projects && errors.projects}
+                                    />
+                                    <Field
+                                        as={TextField}
+                                        label="Role"
+                                        name="role"
+                                        select
+                                        fullWidth
+                                        error={touched.role && !!errors.role}
+                                        helperText={touched.role && errors.role}
+                                    >
+                                        {roles.map((role) => (
+                                            <MenuItem key={role} value={role}>
+                                                {role}
+                                            </MenuItem>
+                                        ))}
+                                    </Field>
+                                    <Field
+                                        as={TextField}
+                                        label="Expiration Date"
+                                        name="expiration"
+                                        type="date"
+                                        InputLabelProps={{ shrink: true }}
+                                        fullWidth
+                                        error={touched.expiration && !!errors.expiration}
+                                        helperText={touched.expiration && errors.expiration}
+                                    />
+                                </Box>
+                            </DialogContent>
+                            <DialogActions sx={{ padding: "10px 20px" }}>
+                                <Button
+                                    onClick={() => setIsModalOpen(false)}
+                                    variant="contained"
+                                    sx={{ backgroundColor: '#E0E0E0', color: 'black', '&:hover': { backgroundColor: '#C0C0C0' } }}
+                                >
+                                    Cancel
+                                </Button>
+                                <Button
+                                    type="submit"
+                                    variant="contained"
+                                    sx={{ backgroundColor: "#907FCF", "&:hover": { backgroundColor: "#6e5bb7" } }}
+                                >
+                                    Save
+                                </Button>
+                            </DialogActions>
+                        </Form>
+                    )}
+                </Formik>
             </Dialog>
-            {/* Filter/Search/Sort Area */}
+
+            {/* Table and Other Components */}
             <Box
                 sx={{
                     display: 'flex',
@@ -379,7 +322,7 @@ const Users = () => {
                         onChange={(e) => setRoleFilter(e.target.value)}
                         sx={{
                             minWidth: 150,
-                            marginRight:1,
+                            marginRight: 1,
                             "& .MuiOutlinedInput-root": {
                                 borderRadius: "12px",
                                 backgroundColor: "#F4F0FF",
@@ -462,8 +405,8 @@ const Users = () => {
                     ))}
                 </TextField>
             </Box>
-
             {/* Table Header */}
+
             <Box
                 sx={{
                     display: 'grid',
@@ -480,7 +423,7 @@ const Users = () => {
                     alignItems: 'center', // Vertically center text
                 }}
             >
-                <div>Account</div>
+                <div>User</div>
                 <div>Projects</div>
                 <div>Status</div>
                 <div>Role</div>
@@ -495,15 +438,15 @@ const Users = () => {
                         style={{
                             display: 'grid',
                             gridTemplateColumns: isEditing
-                                ? '1fr 1fr 1fr 1fr 1fr 1fr' // Include Actions column
-                                : '1fr 1fr 1fr 1fr 1fr',   // Exclude Actions column
+                                ? '1fr 1fr 1fr 1fr 1fr 1fr' 
+                                : '1fr 1fr 1fr 1fr 1fr',   
                             padding: '10px 0',
                             backgroundColor: index % 2 === 0 ? '#F9FAFB' : '#FFFFFF',
-                            alignItems: 'center', // Vertically center items
-                            textAlign: 'center', // Horizontally center items
+                            alignItems: 'center', 
+                            textAlign: 'center', 
                         }}
                     >
-                        <div>{user.account}</div>
+                        <div>{user.user}</div>
                         <div>{user.projects}</div>
                         <div>
                             {isEditing ? (
@@ -591,7 +534,6 @@ const Users = () => {
                     </div>
                 ))}
             </Box>
-
             {/* Pagination */}
             <Box
                 sx={{
@@ -618,17 +560,14 @@ const Users = () => {
                     }}
                 />
             </Box>
+
             <Snackbar
                 open={snackbar.open}
                 autoHideDuration={3000}
                 onClose={handleSnackbarClose}
                 anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
             >
-                <Alert
-                    onClose={handleSnackbarClose}
-                    severity={snackbar.severity}
-                    sx={{ width: '100%' }}
-                >
+                <Alert onClose={handleSnackbarClose} severity={snackbar.severity} sx={{ width: '100%' }}>
                     {snackbar.message}
                 </Alert>
             </Snackbar>

@@ -15,7 +15,6 @@ import ListItemText from '@mui/material/ListItemText';
 import MenuIcon from '@mui/icons-material/Menu';
 import Toolbar from '@mui/material/Toolbar';
 import GroupIcon from "@mui/icons-material/Group";
-import Logo from "../assests/ImageAssets/logo.jpg";
 import Avatar from '@mui/material/Avatar';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import AvatarImg from "../assests/ImageAssets/Avatar.png";
@@ -24,8 +23,7 @@ import TextField from '@mui/material/TextField';
 import InputAdornment from "@mui/material/InputAdornment";
 import SearchIcon from "@mui/icons-material/Search";
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
-import DashboardIcon from '@mui/icons-material/Dashboard';
-
+import LogoNew from "../assests/ImageAssets/Zoopla_logo_purple-7b51c570d0.jpg"
 const drawerWidth = 250;
 
 function ResponsiveDrawer(props) {
@@ -66,9 +64,9 @@ function ResponsiveDrawer(props) {
                 }}
             >
                 <img
-                    src={Logo}
+                    src={LogoNew}
                     alt="Logo"
-                    style={{ maxWidth: "200%", height: "70px", marginLeft: "50px" }}
+                    style={{ maxWidth: "200%", height: "70px", marginLeft: "10px" }}
                 />
 
                 <span
@@ -97,9 +95,9 @@ function ResponsiveDrawer(props) {
                                 component={Link}
                                 to={item.link}
                                 sx={{
-                                    borderRadius: "20px", // Rounded corners
-                                    backgroundColor: isActive ? "#907FCF" : "transparent", // Highlight active item
-                                    color: isActive ? "white" : "inherit", // Change text color if active
+                                    borderRadius: "20px", 
+                                    backgroundColor: isActive ? "#907FCF" : "transparent", 
+                                    color: isActive ? "white" : "inherit", 
                                     "&:hover": {
                                         color: "white",
                                         backgroundColor: "#907FCF",
@@ -111,7 +109,7 @@ function ResponsiveDrawer(props) {
                             >
                                 <ListItemIcon
                                     sx={{
-                                        color: isActive ? "white" : "inherit", // Change icon color if active
+                                        color: isActive ? "white" : "inherit", 
                                     }}
                                 >
                                     {item.icon}
@@ -217,9 +215,9 @@ function ResponsiveDrawer(props) {
                             ),
                         }}
                     />
-                    <HelpIcon sx={{ color: "#907FCF" }} />
-                    <NotificationsIcon sx={{ color: "#907FCF" }} />
-                    <Avatar alt="Cindy Baker" src={AvatarImg} />
+                        <HelpIcon sx={{ color: "#907FCF" ,cursor:"pointer"}} />
+                    <NotificationsIcon sx={{ color: "#907FCF" ,cursor:"pointer"}} />
+                    <Avatar alt="Cindy Baker" src={AvatarImg} sx={{ cursor:"pointer"}}/>
                 </Box>
             </AppBar>
             <Box
