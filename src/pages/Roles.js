@@ -25,6 +25,7 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import DownloadIcon from '@mui/icons-material/Download';
 import CodeIcon from '@mui/icons-material/Code';
 import ViewListIcon from '@mui/icons-material/ViewList';
+
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 
@@ -193,16 +194,7 @@ const PermissionsPage = () => {
           <Typography variant="h6">
             Manage Permissions for {selectedRole?.role}
           </Typography>
-          <Button
-            color="error"
-            variant="contained"
-            onClick={handleDeleteRole}
-            sx={{
-              '&:hover': { backgroundColor: '#b71c1c' },
-            }}
-          >
-            Delete Role
-          </Button>
+
         </Box>
         <DialogContent>
           <Card
@@ -236,6 +228,16 @@ const PermissionsPage = () => {
           </Card>
         </DialogContent>
         <DialogActions>
+          <Button
+            color="error"
+            variant="contained"
+            onClick={handleDeleteRole}
+            sx={{
+              '&:hover': { backgroundColor: '#b71c1c' },
+            }}
+          >
+            Delete Role
+          </Button>
           <Button
             onClick={handleCloseManageModal}
             variant="contained"
