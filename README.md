@@ -1,75 +1,203 @@
-# Getting Started with Create React App
+# **Role-Based Access Control (RBAC) Management System**
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## **Overview**
 
-## Available Scripts
+This project is a **Role-Based Access Control (RBAC) Management System**, designed to provide an intuitive and efficient interface for managing users, roles, and permissions. It empowers administrators to control user access dynamically, manage roles, assign permissions, and ensure a secure system environment.
 
-In the project directory, you can run:
+The project is built using **React** and **Material-UI (MUI)**, leveraging best practices in modern front-end development to deliver a responsive, scalable, and user-friendly UI.
 
-### `npm start`
+---
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## **Features**
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+### 1. **User Management**
+- View a list of all users in a tabular format with pagination.
+- Add new users with details such as:
+  - **Name**
+  - **Projects**
+  - **Role**
+  - **Expiration Date**
+  - **Status (Active/Inactive)**.
+- Edit existing users, including changing roles, status, and expiration dates (with validations).
+- Delete users from the system.
 
-### `npm test`
+### 2. **Role Management**
+- View all available roles in a neatly organized list.
+- Create new roles with:
+  - A unique role name.
+  - A set of permissions (at least one permission is required to create a role).
+- Manage permissions for existing roles dynamically.
+- Delete roles directly from the **Manage Role** dialog.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+### 3. **Dynamic Permission Assignment**
+- View all available permissions (e.g., Read, Write, Delete, Execute, Manage Users).
+- Assign or revoke permissions for roles in real-time.
 
-### `npm run build`
+### 4. **Validation**
+- **Yup** is used for validation to ensure:
+  - Unique role names.
+  - At least one permission is selected for new roles.
+  - Expiration dates cannot be in the past.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### 5. **Responsive Design**
+- Fully responsive interface with **Material-UI**, optimized for devices of all sizes.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+### 6. **Mock API Integration**
+- Simulated backend using in-memory data for all CRUD operations (get, add, update, delete users and roles).
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+---
 
-### `npm run eject`
+## **Tech Stack**
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+- **Frontend**: React, Material-UI (MUI), Formik, Yup
+- **Styling**: Material-UI, Tailwind CSS (for some custom styles)
+- **Routing**: React Router
+- **Data Handling**: Mock API simulation with JSON data
+- **Validation**: Yup (integrated with Formik)
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+---
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+## **Setup Instructions**
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+Follow these steps to set up and run the project locally:
 
-## Learn More
+### 1. **Prerequisites**
+- Ensure you have **Node.js** (>= 14.x) and **npm** (or yarn) installed on your machine.
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+### 2. **Clone the Repository**
+```bash
+git clone <repository-url>
+cd <repository-folder>
+```
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+### 3. **Install Dependencies**
+Install all required dependencies using npm:
+```bash
+npm install
+```
 
-### Code Splitting
+### 4. **Run the Application**
+Start the development server:
+```bash
+npm start
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+The app will be accessible at [http://localhost:3000](http://localhost:3000).
 
-### Analyzing the Bundle Size
+---
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+## **Project Structure**
 
-### Making a Progressive Web App
+```
+src/
+├── components/
+│   ├── Dashboard.js   # Main navigation layout
+│   └── PermissionsPage.js  # Role management
+├── pages/
+│   ├── Users.js       # User management page
+│   └── Roles.js       # Role management page
+├── apis/
+│   └── mockApi.js     # Mock API functions for CRUD operations
+├── assets/
+│   ├── DataAssets/    # Mock data files
+│   └── ImageAssets/   # Static images (e.g., logo, avatar)
+├── App.js             # Main app entry point
+├── index.js           # React app entry point
+└── App.css            # Global styles
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+---
 
-### Advanced Configuration
+## **Key Components**
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+### **1. Dashboard**
+- A responsive layout with a sidebar navigation menu.
+- Provides links to **Users** and **Roles** pages.
 
-### Deployment
+### **2. Users Page**
+- Displays a paginated table of users.
+- Supports filtering, sorting, and searching by user details.
+- Allows CRUD operations on user data.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+### **3. Roles Page**
+- Displays all available roles.
+- Allows role creation, permission management, and deletion.
 
-### `npm run build` fails to minify
+### **4. Manage Role Dialog**
+- A dynamic modal to edit or delete roles.
+- Provides checkboxes to assign/revoke permissions.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
-# Role-Based-Access-Control-
-# Arjav1971-Role-Based-Access-Control-RBAC-UI
-# Arjav1971-Role-Based-Access-Control-RBAC-UI
-# Arjav1971-Role-Based-Access-Control-RBAC-UI
-# Arjav1971-Arjav1971-Role-Based-Access-Control-RBAC-UI
+### **5. Add Role Dialog**
+- A modal to create a new role with validation to ensure unique names and selected permissions.
+
+---
+
+## **Validation Rules**
+
+- **Role Name**: Must be unique and not empty.
+- **Permissions**: At least one permission must be selected.
+- **User Expiration Date**: Cannot be a past date.
+- **User Projects**: Must be a valid non-negative number.
+
+---
+
+## **Sample Data**
+
+The app uses mock data stored in `src/assets/DataAssets/mockUsers.json`. The structure includes:
+```json
+[
+  {
+    "id": 1,
+    "user": "John Doe",
+    "projects": 5,
+    "status": "Active",
+    "role": "Admin",
+    "expiration": "2024-11-30"
+  },
+  {
+    "id": 2,
+    "user": "Jane Smith",
+    "projects": 2,
+    "status": "Inactive",
+    "role": "Editor",
+    "expiration": "2024-10-10"
+  }
+]
+```
+
+---
+
+## **Screenshots**
+
+
+
+### **Users Page**
+ <img width="1465" alt="Screenshot 2024-11-27 at 12 58 01 AM" src="https://github.com/user-attachments/assets/d8878ea9-573b-4e86-bd96-3cad9237fe57">
+
+<img width="1466" alt="Screenshot 2024-11-27 at 12 57 26 AM" src="https://github.com/user-attachments/assets/12a81e3e-b5f1-4bd6-a9ae-e7b4814c686d">
+
+
+### **Roles Page**
+<img width="1458" alt="Screenshot 2024-11-27 at 1 05 54 AM" src="https://github.com/user-attachments/assets/bcd955a5-7136-4189-a0ef-a95ba9926152">
+
+
+### **Manage Role Dialog**
+<img width="1460" alt="Screenshot 2024-11-27 at 12 58 25 AM" src="https://github.com/user-attachments/assets/b484e713-8fe4-489c-bef7-e7961f5544ff">
+
+
+---
+
+## **Future Enhancements**
+- **Backend Integration**: Connect with a real API for persistent data.
+- **Access Levels**: Define hierarchical roles (e.g., Super Admin, Admin, User).
+- **Activity Logs**: Track changes made to users and roles.
+- **Role Groups**: Group roles for easier management.
+
+---
+
+## **Contributing**
+Contributions are welcome! Please fork the repository and submit a pull request for review.
+
+---
+
+
