@@ -151,12 +151,14 @@ const PermissionsPage = () => {
               backgroundColor: '#F9FAFB',
               borderRadius: 2,
               border: '1px solid #E0E0E0',
+              
             }}
           >
             <Typography variant="h6">{role.role}</Typography>
             <Button
               variant="contained"
               sx={{
+                marginLeft:"10px",
                 backgroundColor: '#907FCF',
                 '&:hover': { backgroundColor: '#6e5bb7' },
               }}
@@ -236,7 +238,7 @@ const PermissionsPage = () => {
               '&:hover': { backgroundColor: '#b71c1c' },
             }}
           >
-            Delete Role
+            Delete
           </Button>
           <Button
             onClick={handleCloseManageModal}
